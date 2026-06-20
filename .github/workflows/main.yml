@@ -8,7 +8,7 @@ jobs:
     runs-on: macos-latest
     
     steps:
-      - name: Lấy mã nguồn
+      - name: Lấy mã nguồn Apple
         uses: actions/checkout@v4
 
       - name: Cài đặt Node.js
@@ -21,25 +21,23 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Biên dịch mã nguồn Native (Tự động ấn Y để bỏ qua lỗi visionOS)
+      - name: Biên dịch thư viện Native (Bypass Unity & visionOS)
+        # -b Build: Chỉ chạy Xcode build, không gọi Unity để Pack tránh lỗi 254.
+        # -p Core GameKit: Chỉ định rõ 2 module cần thiết, bỏ qua SpatialController.
         run: |
-          yes | python3 build.py
+          python3 build.py -b Build -p Core GameKit
 
-      - name: Tự động đóng gói các file .tgz
+      - name: Đóng gói .tgz thủ công bằng NPM
         run: |
           mkdir -p Build_TGZ
           
-          for dir in plug-ins/*/; do
-            if [ -f "${dir}package.json" ]; then
-              echo "Đang đóng gói: $dir"
-              cd "${dir}"
-              npm pack
-              mv *.tgz ../../Build_TGZ/
-              cd ../../
-            fi
-          done
+          # Tìm tất cả file package.json trong thư mục plug-ins và tự động chạy lệnh npm pack
+          find plug-ins -name "package.json" -type f -execdir npm pack \;
+          
+          # Gom tất cả các file .tgz vừa được sinh ra về chung một thư mục
+          find plug-ins -name "*.tgz" -exec mv {} Build_TGZ/ \;
 
-      - name: Upload toàn bộ file TGZ cho bạn tải về
+      - name: Xuất file thành phẩm (Artifact)
         uses: actions/upload-artifact@v4
         with:
           name: Apple-Plugins-TGZ
