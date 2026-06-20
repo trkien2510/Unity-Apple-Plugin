@@ -14,22 +14,36 @@ jobs:
       - name: Cài đặt Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24' # Đã nâng cấp lên Node 24
+          node-version: '20' # Giữ nguyên Node 20, cảnh báo vàng của GitHub không ảnh hưởng đến code.
 
       - name: Cài đặt Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Cài đặt thư viện NPM (Bổ sung)
-        run: npm install
-
-      - name: Chạy script build.py
+      - name: Biên dịch mã nguồn Native (Không gọi Unity)
         run: |
-          python3 build.py -b Build Pack
+          python3 build.py
 
-      - name: Upload thư mục Build làm Artifact
+      - name: Tự động đóng gói các file .tgz
+        run: |
+          # Tạo một thư mục chứa thành phẩm
+          mkdir -p Build_TGZ
+          
+          # Quét tất cả các plugin con của Apple và nén thủ công
+          for dir in plug-ins/*/; do
+            if [ -f "${dir}package.json" ]; then
+              echo "Đang đóng gói: $dir"
+              cd "${dir}"
+              npm pack
+              # Di chuyển file .tgz thu được vào thư mục thành phẩm
+              mv *.tgz ../../Build_TGZ/
+              cd ../../
+            fi
+          done
+
+      - name: Upload toàn bộ file TGZ cho bạn tải về
         uses: actions/upload-artifact@v4
         with:
           name: Apple-Plugins-TGZ
-          path: Build/*.tgz
+          path: Build_TGZ/*.tgz
