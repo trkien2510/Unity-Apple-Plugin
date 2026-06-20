@@ -21,20 +21,26 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Biên dịch thư viện Native (Bypass Unity & visionOS)
-        # -b Build: Chỉ chạy Xcode build, không gọi Unity để Pack tránh lỗi 254.
-        # -p Core GameKit: Chỉ định rõ 2 module cần thiết, bỏ qua SpatialController.
+      - name: Tắt hoàn toàn tính năng hỏi [Y/n] của Apple
         run: |
-          python3 build.py -b Build -p Core GameKit
+          # Tìm đến dòng lệnh chờ gõ phím trong file Python và thay thế nó bằng lệnh tự động trả về True (Yes)
+          sed -i '' 's/user_response = input()/return True/g' scripts/python/upi_utility.py
+
+      - name: Biên dịch thư viện Native (Chỉ build iOS và macOS)
+        # -b Build: Không gọi Unity đóng gói.
+        # -p Core GameKit: Chỉ chọn 2 plugin cần thiết.
+        # -m iOS macOS: Chỉ build cho Mobile và Mac, né hoàn toàn visionOS/tvOS.
+        run: |
+          python3 build.py -b Build -p Core GameKit -m iOS macOS
 
       - name: Đóng gói .tgz thủ công bằng NPM
         run: |
           mkdir -p Build_TGZ
           
-          # Tìm tất cả file package.json trong thư mục plug-ins và tự động chạy lệnh npm pack
+          # Tìm và nén các file package.json
           find plug-ins -name "package.json" -type f -execdir npm pack \;
           
-          # Gom tất cả các file .tgz vừa được sinh ra về chung một thư mục
+          # Gom file .tgz về chung một chỗ
           find plug-ins -name "*.tgz" -exec mv {} Build_TGZ/ \;
 
       - name: Xuất file thành phẩm (Artifact)
