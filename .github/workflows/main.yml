@@ -9,25 +9,24 @@ jobs:
     
     steps:
       - name: Lấy mã nguồn
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Cài đặt Node.js (Yêu cầu của build.py)
-        uses: actions/setup-node@v3
+      - name: Cài đặt Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Cài đặt Python (Yêu cầu của build.py)
-        uses: actions/setup-python@v4
+      - name: Cài đặt Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # Chạy script build của Apple (chỉ build Native và Pack tgz, bỏ qua Unity Tests để tránh lỗi thiếu License Unity)
       - name: Chạy script build.py
         run: |
           python3 build.py -b Build Pack
 
       - name: Upload thư mục Build làm Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Apple-Plugins-TGZ
           path: Build/*.tgz
