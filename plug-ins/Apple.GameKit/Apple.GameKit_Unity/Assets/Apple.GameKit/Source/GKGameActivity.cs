@@ -32,10 +32,12 @@ namespace Apple.GameKit
 
         static GKGameActivity()
         {
+#if (UNITY_IOS || UNITY_TVOS || UNITY_STANDALONE_OSX || UNITY_VISIONOS) && !UNITY_EDITOR
             if (Availability.IsTypeAvailable<GKGameActivity>())
             {
                 Interop.GKGameActivity_SetWantsToPlayCallback(OnWantsToPlay);
             }
+#endif
         }
 
 #if IOS_19_BETA_1_WANTSTOPLAY_MAIN_THREAD_WORKAROUND
@@ -315,7 +317,7 @@ namespace Apple.GameKit
         public void RemoveAchievements(NSArray<GKAchievement> achievements) =>
             Interop.GKGameActivity_RemoveAchievements(Pointer, achievements.Pointer);
         public void RemoveAchievements(params GKAchievement[] achievements) =>
-            RemoveAchievements(new NSMutableArray<GKAchievement>(achievements)); 
+            RemoveAchievements(new NSMutableArray<GKAchievement>(achievements));
 
         /// <summary>
         /// Removes all scores from leaderboards for a player if exist.
@@ -464,7 +466,7 @@ namespace Apple.GameKit
             [DllImport(InteropUtility.DLLName)]
             public static extern void GKGameActivity_SetAchievementCompleted(IntPtr pointer, IntPtr achievementPtr);
             [DllImport(InteropUtility.DLLName)]
-            public static extern void GKGameActivity_SetProgressOnAchievement(IntPtr pointer, IntPtr achievementPtr, double  percentComplete);
+            public static extern void GKGameActivity_SetProgressOnAchievement(IntPtr pointer, IntPtr achievementPtr, double percentComplete);
             [DllImport(InteropUtility.DLLName)]
             public static extern void GKGameActivity_SetScoreOnLoaderboard(IntPtr pointer, IntPtr leaderboardPtr, long score);
             [DllImport(InteropUtility.DLLName)]

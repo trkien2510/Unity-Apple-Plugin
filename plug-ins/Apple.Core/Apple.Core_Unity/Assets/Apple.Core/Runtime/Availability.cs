@@ -66,7 +66,7 @@ namespace Apple.Core
         /// <param name="env">The runtime environment to test or default to test the current environment.</param>
         /// <returns></returns>
         public static bool IsTypeAvailable(Type type, RuntimeEnvironment env = default)
-        {            
+        {
             if (type == null)
             {
                 return false;
@@ -81,7 +81,7 @@ namespace Apple.Core
                 }
             }
             return true;
-        } 
+        }
         public static bool IsTypeAvailable<T>(RuntimeEnvironment env = default) => IsTypeAvailable(typeof(T), env);
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Apple.Core
                     .Select(m => IsMemberAvailable(m, env))
                     .Distinct()
                     .ToArray();
-                
+
                 if (distinctAvailabilities.Length == 1)
                 {
                     // All method overloads have the same availability.
@@ -184,7 +184,7 @@ namespace Apple.Core
             }
 
             return isAvailable;
-        } 
+        }
         public static bool IsMethodAvailable<DeclaringType>(string methodName, Type[] parameterTypes = null, RuntimeEnvironment env = default) => IsMethodAvailable(typeof(DeclaringType), methodName, parameterTypes, env);
 
         /// <summary>
@@ -201,11 +201,13 @@ namespace Apple.Core
         [RuntimeInitializeOnLoadMethod]
         private static void OnApplicationStart()
         {
+#if (UNITY_IOS || UNITY_TVOS || UNITY_STANDALONE_OSX || UNITY_VISIONOS) && !UNITY_EDITOR
             Debug.Log("[Apple.Core Plug-In Runtime] Initializing API Availability Checking");
 
             var env = RuntimeEnvironment;
 
             Debug.Log($"[Apple.Core Plug-In Runtime] Availability Runtime Environment: {env.RuntimeOperatingSystem.ToString()} {env.VersionNumber.Major}.{env.VersionNumber.Minor}");
+#endif
         }
         #endregion
     }
