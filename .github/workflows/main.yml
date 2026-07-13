@@ -8,43 +8,33 @@ jobs:
     runs-on: macos-latest
     
     steps:
-      - name: Lấy mã nguồn Apple
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cài đặt Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Cài đặt Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Tắt hoàn toàn tính năng hỏi [Y/n] của Apple
+      - name: Bypass Apple Prompts (Auto-Yes)
         run: |
-          # Tìm đến dòng lệnh chờ gõ phím trong file Python và thay thế nó bằng lệnh tự động trả về True (Yes)
+          # Find the input prompt in the Python script and replace it to automatically return True
           sed -i '' 's/user_response = input()/return True/g' scripts/python/upi_utility.py
 
-      - name: Biên dịch thư viện Native (Chỉ build iOS và macOS)
-        # -b Build: Không gọi Unity đóng gói.
-        # -p Core GameKit: Chỉ chọn 2 plugin cần thiết.
-        # -m iOS macOS: Chỉ build cho Mobile và Mac, né hoàn toàn visionOS/tvOS.
+      - name: Build and Pack Native Libraries
+        # -b all: Executes both build and pack actions.
+        # -p Core GameKit: Selects only the required plugins.
+        # -m iOS macOS: Targets Mobile and Mac platforms, skipping visionOS/tvOS.
         run: |
-          python3 build.py -b Build -p Core GameKit -m iOS macOS
+          python3 build.py -b all -p Core GameKit -m iOS macOS
 
-      - name: Đóng gói .tgz thủ công bằng NPM
-        run: |
-          mkdir -p Build_TGZ
-          
-          # Tìm và nén các file package.json
-          find plug-ins -name "package.json" -type f -execdir npm pack \;
-          
-          # Gom file .tgz về chung một chỗ
-          find plug-ins -name "*.tgz" -exec mv {} Build_TGZ/ \;
-
-      - name: Xuất file thành phẩm (Artifact)
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Apple-Plugins-TGZ
-          path: Build_TGZ/*.tgz
+          path: Build/*.tgz
