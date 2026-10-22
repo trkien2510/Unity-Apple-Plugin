@@ -116,7 +116,7 @@ namespace Apple.GameKit
         }
 
         [MonoPInvokeCallback(typeof(SuccessTaskCallback<bool>))]
-        private static void OnCheckPendingGameActivityExistence(long taskId, bool hasActiveChallenges)
+        private static void OnCheckPendingGameActivityExistence(long taskId, [MarshalAs(UnmanagedType.I1)] bool hasActiveChallenges)
         {
             InteropTasks.TrySetResultAndRemove(taskId, hasActiveChallenges);
         }
@@ -412,7 +412,7 @@ namespace Apple.GameKit
             [DllImport(InteropUtility.DLLName)]
             public static extern void GKGameActivity_SetWantsToPlayCallback(InteropWantsToPlayHandler callback);
             [DllImport(InteropUtility.DLLName)]
-            public static extern void GKGameActivity_WantsToPlayCallbackCompletionHandler_Invoke(IntPtr context, bool result);
+            public static extern void GKGameActivity_WantsToPlayCallbackCompletionHandler_Invoke(IntPtr context, [MarshalAs(UnmanagedType.I1)] bool result);
             [DllImport(InteropUtility.DLLName)]
             public static extern IntPtr GKGameActivity_GetAchievementsAsArray(IntPtr pointer);
             [DllImport(InteropUtility.DLLName)]
